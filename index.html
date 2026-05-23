@@ -15,6 +15,45 @@
     .break-inside-avoid { break-inside: avoid; margin-bottom: 6px; }
     .overflow-hidden { overflow: hidden; }
     @media (max-width: 768px) { .masonry-grid { columns: 2 !important; } }
+
+    /* Loader */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease;
+    }
+    @media (prefers-color-scheme: dark) { #loader { background: #000; } }
+    #loader.hidden { opacity: 0; pointer-events: none; }
+    .loader-inner {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .loader-name {
+      font-family: 'Signika', sans-serif;
+      font-size: 1.5rem; font-weight: 700; letter-spacing: 0.15em;
+    }
+    .loader-bar {
+      width: 120px; height: 2px;
+      background: #e5e5e5;
+      border-radius: 999px; overflow: hidden;
+    }
+    @media (prefers-color-scheme: dark) { .loader-bar { background: #333; } }
+    .loader-fill {
+      height: 100%; width: 0;
+      background: #000;
+      border-radius: 999px;
+      animation: load 1.2s ease forwards;
+    }
+    @media (prefers-color-scheme: dark) { .loader-fill { background: #fff; } }
+    @keyframes load {
+      0%   { width: 0; }
+      60%  { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    /* Body fade-in after load */
+    body { opacity: 0; transition: opacity 0.5s ease; }
+    body.loaded { opacity: 1; }
   </style>
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -31,8 +70,16 @@
   <!-- End - Fancybox Scripts -->
 </head>
 
-<body
-  class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 opacity-0 animate-fade-in transition duration-500">
+<body class="dark:bg-black bg-white text-black dark:text-white px-5 md:px-20">
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-inner">
+      <span class="loader-name">YADAV</span>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+    </div>
+  </div>
+
   <!-- Navbar -->
   <header class="flex w-full overflow-hidden pt-10 pb-1">
     <!-- Navbar -->
@@ -500,6 +547,34 @@
   </script>
   <script src="dist/fade_in.js"></script>
   <script src="dist/menu.js"></script>
+  <script>
+    (function() {
+      var loader = document.getElementById('loader');
+      var imgs = document.querySelectorAll('img');
+      var total = imgs.length, loaded = 0;
+
+      function done() {
+        loader.classList.add('hidden');
+        setTimeout(function() { loader.style.display = 'none'; }, 650);
+        document.body.classList.add('loaded');
+      }
+
+      if (total === 0) { done(); return; }
+
+      function onLoad() {
+        loaded++;
+        if (loaded >= total) done();
+      }
+
+      imgs.forEach(function(img) {
+        if (img.complete) { onLoad(); }
+        else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad); }
+      });
+
+      // Fallback: show site after 4s max regardless
+      setTimeout(done, 4000);
+    })();
+  </script>
 </body>
 
 </html>
