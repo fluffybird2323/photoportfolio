@@ -26,29 +26,33 @@
     @media (prefers-color-scheme: dark) { #loader { background: #000; } }
     #loader.hidden { opacity: 0; pointer-events: none; }
     .loader-inner {
-      display: flex; flex-direction: column; align-items: center; gap: 16px;
-    }
-    .loader-name {
-      font-family: 'Signika', sans-serif;
-      font-size: 1.5rem; font-weight: 700; letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
     }
     .loader-bar {
-      width: 120px; height: 2px;
-      background: #e5e5e5;
+      width: 160px; height: 3px;
+      background: rgba(0,0,0,0.12);
       border-radius: 999px; overflow: hidden;
     }
-    @media (prefers-color-scheme: dark) { .loader-bar { background: #333; } }
+    @media (prefers-color-scheme: dark) { .loader-bar { background: rgba(255,255,255,0.15); } }
     .loader-fill {
       height: 100%; width: 0;
-      background: #000;
+      background: #111;
       border-radius: 999px;
-      transition: width 0.2s ease;
+      transition: width 0.25s ease;
     }
-    @media (prefers-color-scheme: dark) { .loader-fill { background: #fff; } }
+    @media (prefers-color-scheme: dark) { .loader-fill { background: #eee; } }
+    .loader-text {
+      font-family: 'Signika', sans-serif;
+      font-size: 0.72rem; letter-spacing: 0.12em;
+      color: rgba(0,0,0,0.4);
+    }
+    @media (prefers-color-scheme: dark) { .loader-text { color: rgba(255,255,255,0.4); } }
 
-    /* Body fade-in after load */
-    body { opacity: 0; transition: opacity 0.5s ease; }
+    /* Body fade-in after load — loader must stay visible */
+    body { opacity: 0; transition: opacity 0.6s ease; }
     body.loaded { opacity: 1; }
+    /* Keep loader visible even when body is opacity:0 */
+    #loader { opacity: 1 !important; }
   </style>
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -70,8 +74,8 @@
   <!-- Loader -->
   <div id="loader">
     <div class="loader-inner">
-      <div class="loader-bar"><div class="loader-fill"></div></div>
-      <span style="font-family:'Signika',sans-serif;font-size:0.75rem;letter-spacing:0.1em;opacity:0.45;">ちょっと待って — chotto minute</span>
+      <div class="loader-bar"><div class="loader-fill" id="loader-fill"></div></div>
+      <span class="loader-text">ちょっと待って — chotto minute</span>
     </div>
   </div>
 
@@ -560,7 +564,7 @@
         loaded++;
         // update bar width as images load
         var pct = Math.round((loaded / total) * 100);
-        var fill = document.querySelector('.loader-fill');
+        var fill = document.getElementById('loader-fill');
         if (fill) fill.style.width = pct + '%';
         if (loaded >= total) done();
       }
